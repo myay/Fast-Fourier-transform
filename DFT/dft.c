@@ -3,7 +3,11 @@
 #include <complex.h>
 #include <math.h>
 
-#define N 16
+#define N 8
+
+#ifndef M_PI
+#define M_PI 3.1416
+#endif
 
 double input[N];
 double complex output[N];
@@ -26,29 +30,43 @@ void read_ints (const char* file_name)
   fclose(numbers);
 }
 
+void dft (double *in, double complex *out)
+{
+  double *in_ptr = in;
+  double complex *out_ptr = out;
+
+  for (int k = 0; k < N; k++)
+  {
+    for (int n = 0; n < N; n++)
+    {
+      *out_ptr += (*in_ptr) * (cos((2*M_PI*k*n) / N) + sin((-1)*(2*M_PI*k*n) / N)*I);
+      in_ptr++;
+    }
+    in_ptr = in;
+    out_ptr++;
+  }
+
+}
+
 int main (int argc, char *argv[])
 {
   if (argc != 2)
   {
     printf("Specify a file with input numbers. Try: ./dft /path/to/file\n");
+    return -1;
   }
 
   read_ints(argv[1]);
 
-  double complex z1 = 1.0 + 1.0 * I;
-  double complex z2 = 1.0 - 2.0 * I;
+  //double complex z1 = 1.0 + 1.0 * I;
 
-  printf("Z1 = %.2f + %.2fi\tZ2 = %.2f %+.2fi\n", creal(z1), cimag(z1), creal(z2), cimag(z2));
+  dft(input, output);
 
-  double complex output[N];
-  output[0] = z1;
-  printf("Output: %.2f + %.2fi\n", creal(output[0]), cimag(output[0]));
-
-  printf("The Fourier transform is:\n\n");
+  printf("Input on the left, output DFT on the right:\n\n");
   for (int i = 0; i < N; i++)
   {
-      printf("x[%d] = %.2f \t X[%d] = %.2f + %.2fi \n",
-              i, input[i], i, creal(output[0]), cimag(output[0]));
+      printf("x[%d] = %.3f \t X[%d] = %.3f + %.3fi \n",
+              i, input[i], i, creal(output[i]), cimag(output[i]));
   }
 
   return 0;
