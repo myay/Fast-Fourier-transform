@@ -3,6 +3,7 @@
 #include <complex.h>
 #include <math.h>
 #include <stdbool.h>
+#include <float.h>
 
 /* Choose X*Y  complex input values (type double) in input.txt.
  * For example with X = 4 and Y = 4, the input in form of (real,imaginary) can be specified as
@@ -98,7 +99,7 @@ void dft_2d (double complex in[][Y], double complex out[][Y], bool inverse)
         }
         outer_exp = (cos( cos_arg ) + sin( sin_arg ) * I);
         out[u][v] += (inner_sum * outer_exp);
-        inner_sum = 0.0;
+        inner_sum = 0;
       }
       if (inverse)
       {
@@ -121,6 +122,8 @@ int main (int argc, char *argv[])
   dft_2d(input, output, 0);
   print_array(input);
   print_array(output);
+
+  printf("%.2f\n\n", DBL_MAX);
 
   printf("Inverse:\n\n");
   dft_2d(output, input, 1);
