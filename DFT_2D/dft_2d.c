@@ -4,19 +4,19 @@
 #include <math.h>
 #include <stdbool.h>
 
-/* Choose N complex input values (type double) in input.txt.
- * For example with N = 8, the input in form of (real,imaginary) can be specified as
- * (0,0) (0.707,0) (1,0) (0.707,0) (0,0) (-0.707,0) (-1,0) (-0.707,0)
- * which is a discrete time sinus function between 0 and 2pi.
+/* Choose X*Y  complex input values (type double) in input.txt.
+ * For example with X = 4 and Y = 4, the input in form of (real,imaginary) can be specified as
+ * (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1).
  */
-#define Nz 8
+#define X 2 // number of rows
+#define Y 2 // and collumns
 
 #ifndef M_PI
 #define M_PI 3.1416
 #endif
 
-double complex input[N];
-double complex output[N];
+double complex input[X][Y];
+double complex output[X][Y];
 
 void read_input (const char* file_name)
 {
@@ -24,24 +24,46 @@ void read_input (const char* file_name)
   numbers = fopen(file_name, "r");
 
   if (numbers == NULL){
-      printf("Error reading file, try ./dft /path/to/file\n");
+      printf("Error reading file, try ./dft_2d /path/to/file\n");
       exit (0);
   }
 
   double real = 0.0;
   double img = 0.0;
 
-  for (int i = 0; i < N; i++)
+  for (int i = 0; i < X; i++)
   {
-      fscanf(numbers, "(%lf,%lf) ", &real, &img);
-      input[i] = real + img * I;
+    for (int j = 0; j < Y; j++)
+    {
+        fscanf(numbers, "(%lf,%lf) ", &real, &img);
+        input[i][j] = real + img * I;
+    }
   }
 
   fclose(numbers);
 }
 
-void dft (double complex *in, double complex *out, bool inverse)
+void print_array (double complex toprint[][Y])
 {
+  for (int i = 0; i < X; i++)
+  {
+    for (int j = 0; j < Y; j++)
+    {
+        printf( " %.3f+%.3fi\t\t", creal( toprint[i][j] ), cimag( toprint[i][j] ) );
+    }
+    printf("\n");
+  }
+  printf("\n");
+}
+
+
+void dft (double complex in[][Y], double complex out[][Y], bool inverse)
+{
+
+
+
+
+  /*
   double complex *in_ptr = in;
   double complex *out_ptr = out;
 
@@ -71,7 +93,9 @@ void dft (double complex *in, double complex *out, bool inverse)
     in_ptr = in;
     out_ptr++;
   }
+  */
 }
+
 
 int main (int argc, char *argv[])
 {
@@ -82,27 +106,12 @@ int main (int argc, char *argv[])
   }
 
   read_input(argv[1]);
+  print_array(input);
+  print_array(output);
 
-  //double complex z1 = 1.0 + 1.0 * I;
-
-  dft(input, output, 0);
-
-  printf("Input on the left, output DFT on the right:\n\n");
-  for (int i = 0; i < N; i++)
-  {
-    printf( "x[%d] = %.3f + %.3fi\t\t", i, creal(input[i]), cimag(input[i]) );
-    printf( "X[%d] = %.3f + %.3fi\n", i, creal(output[i]), cimag(output[i]) );
-  }
-
+  //dft(input, output, 0);
+  /*
   dft(output, input, 1);
-
-  printf("\nInverse DFT:\n\n");
-
-  for (int i = 0; i < N; i++)
-  {
-      printf( "X[%d] = %.3f + %.3fi\t\t", i, creal(output[i]), cimag(output[i]) );
-      printf( "x[%d] = %.3f + %.3fi\n", i, creal(input[i]), cimag(input[i]) );
-  }
-
+  */
   return 0;
 }
