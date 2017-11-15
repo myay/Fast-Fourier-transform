@@ -18,18 +18,7 @@
 
 double complex input[X][Y];
 double complex output[X][Y];
-/*
-double complex hi_pass[X][Y] = {{10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
-                       {10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
-                       {10, 10, 10, 10,  5,  5, 10, 10, 10, 10},
-                       {10, 10, 10,  5,  5,  5,  5, 10, 10, 10},
-                       {10, 10,  5,  5,  5,  5,  5,  5, 10, 10},
-                       {10, 10,  5,  5,  5,  5,  5,  5, 10, 10},
-                       {10, 10, 10,  5,  5,  5,  5, 10, 10, 10},
-                       {10, 10, 10, 10,  5,  5, 10, 10, 10, 10},
-                       {10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
-                       {10, 10, 10, 10, 10, 10, 10, 10, 10, 10}};
-*/
+
 void read_input (const char* file_name)
 {
   FILE *numbers;
@@ -82,7 +71,6 @@ void dft_2d (double complex in[][Y], double complex out[][Y], bool inverse)
       {
         for (y = 0; y < Y; y++)
         {
-          //printf("u = %d, v = %d, x = %d, y = %d\n", u, v, x, y );
           cos_arg = ((2*M_PI*v*y) / Y);
           sin_arg = ((-1)*(2*M_PI*v*y) / Y);
           if(inverse)
