@@ -8,8 +8,8 @@
  * For example with X = 4 and Y = 4, the input in form of (real,imaginary) can be specified as
  * (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1).
  */
-#define X 3 // number of rows
-#define Y 3 // and collumns
+#define X 2 // number of rows
+#define Y 2 // and collumns
 
 #ifndef M_PI
 #define M_PI 3.1416
@@ -17,7 +17,18 @@
 
 double complex input[X][Y];
 double complex output[X][Y];
-
+/*
+double complex hi_pass[X][Y] = {{10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
+                       {10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
+                       {10, 10, 10, 10,  5,  5, 10, 10, 10, 10},
+                       {10, 10, 10,  5,  5,  5,  5, 10, 10, 10},
+                       {10, 10,  5,  5,  5,  5,  5,  5, 10, 10},
+                       {10, 10,  5,  5,  5,  5,  5,  5, 10, 10},
+                       {10, 10, 10,  5,  5,  5,  5, 10, 10, 10},
+                       {10, 10, 10, 10,  5,  5, 10, 10, 10, 10},
+                       {10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
+                       {10, 10, 10, 10, 10, 10, 10, 10, 10, 10}};
+*/
 void read_input (const char* file_name)
 {
   FILE *numbers;
@@ -39,7 +50,6 @@ void read_input (const char* file_name)
       input[x][y] = real + img * I;
     }
   }
-
   fclose(numbers);
 }
 
@@ -49,7 +59,7 @@ void print_array (double complex toprint[][Y])
   {
     for (int y = 0; y < Y; y++)
     {
-      printf( " %.3f+%.3fi\t\t", creal( toprint[x][y] ), cimag( toprint[x][y] ) );
+      printf( " %.2f+%.2fi\t", creal( toprint[x][y] ), cimag( toprint[x][y] ) );
     }
     printf("\n");
   }
@@ -60,6 +70,7 @@ void dft_2d (double complex in[][Y], double complex out[][Y], bool inverse)
 {
   int u, v, x, y;
   double cos_arg, sin_arg;
+  double complex inner_sum;
   double complex outer_exp;
 
   for (u = 0; u < X ; u++)
@@ -69,52 +80,33 @@ void dft_2d (double complex in[][Y], double complex out[][Y], bool inverse)
       for (x = 0; x < X; x++)
       {
         for (y = 0; y < Y; y++)
+        {
+          //printf("u = %d, v = %d, x = %d, y = %d\n", u, v, x, y );
+          cos_arg = ((2*M_PI*v*y) / Y);
+          sin_arg = ((-1)*(2*M_PI*v*y) / Y);
+          if(inverse)
           {
-              //printf("u = %d, v = %d, x = %d, y = %d\n", u, v, x, y );
-              cos_arg = ((2*M_PI*v*y) / Y);
-              sin_arg = ((-1)*(2*M_PI*v*y) / Y);
-              out[u][v] += (in[x][y]) * (cos( cos_arg ) + sin( sin_arg )*I);
+            sin_arg *= (-1);
           }
-          cos_arg = ((2*M_PI*u*x) / X);
-          sin_arg = ((-1)*(2*M_PI*u*x) / X);
-          outer_exp = (cos( cos_arg ) + sin( sin_arg ) * I);
-          out[u][v] *= outer_exp;
+          inner_sum += (in[x][y]) * (cos( cos_arg ) + sin( sin_arg ) * I);
+        }
+        cos_arg = ((2*M_PI*u*x) / X);
+        sin_arg = ((-1)*(2*M_PI*u*x) / X);
+        if (inverse)
+        {
+          sin_arg *= (-1);
+        }
+        outer_exp = (cos( cos_arg ) + sin( sin_arg ) * I);
+        out[u][v] += (inner_sum * outer_exp);
+        inner_sum = 0.0;
       }
-    }
-  }
-  /*
-  double complex *in_ptr = in;
-  double complex *out_ptr = out;
-
-  double sin_arg = 0.0;
-  double cos_arg = 0.0;
-  for (int k = 0; k < N; k++)
-  {
-    for (int n = 0; n < N; n++)
-    {
-      sin_arg = ((-1)*(2*M_PI*k*n) / N);
-      cos_arg = ((2*M_PI*k*n) / N);
-
       if (inverse)
       {
-        sin_arg *= (-1);
+        out[u][v] /= ((X)*(Y));
       }
-
-      *out_ptr += (*in_ptr) * (cos( cos_arg ) + sin( sin_arg )*I);
-      in_ptr++;
     }
-
-    if (inverse)
-    {
-      (*out_ptr) /= (N+1);
-    }
-
-    in_ptr = in;
-    out_ptr++;
   }
-  */
 }
-
 
 int main (int argc, char *argv[])
 {
@@ -126,12 +118,14 @@ int main (int argc, char *argv[])
 
   read_input(argv[1]);
 
-
-  //dft(input, output, 0);
-
-  dft_2d(input, output, 1);
+  dft_2d(input, output, 0);
   print_array(input);
   print_array(output);
+
+  printf("Inverse:\n\n");
+  dft_2d(output, input, 1);
+  print_array(output);
+  print_array(input);
 
   return 0;
 }
