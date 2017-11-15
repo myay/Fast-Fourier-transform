@@ -8,8 +8,8 @@
  * For example with X = 4 and Y = 4, the input in form of (real,imaginary) can be specified as
  * (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1).
  */
-#define X 4 // number of rows
-#define Y 4 // and collumns
+#define X 3 // number of rows
+#define Y 3 // and collumns
 
 #ifndef M_PI
 #define M_PI 3.1416
@@ -58,18 +58,19 @@ void print_array (double complex toprint[][Y])
 
 void dft_2d (double complex in[][Y], double complex out[][Y], bool inverse)
 {
-  int u = 0, v = 0, x = 0, y = 0;
+  int u, v, x, y;
   double cos_arg, sin_arg;
   double complex outer_exp;
 
-  for (; u < X ; u++)
+  for (u = 0; u < X ; u++)
   {
-    for (; v < Y ; v++)
+    for (v = 0; v < Y ; v++)
     {
-      for (; x < X; x++)
+      for (x = 0; x < X; x++)
       {
-        for (; y < Y; y++)
+        for (y = 0; y < Y; y++)
           {
+              //printf("u = %d, v = %d, x = %d, y = %d\n", u, v, x, y );
               cos_arg = ((2*M_PI*v*y) / Y);
               sin_arg = ((-1)*(2*M_PI*v*y) / Y);
               out[u][v] += (in[x][y]) * (cos( cos_arg ) + sin( sin_arg )*I);
