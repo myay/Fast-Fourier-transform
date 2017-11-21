@@ -20,9 +20,13 @@ typedef unsigned char uint8_t;
 double complex input[N];
 double complex output[N];
 
+/*
 static unsigned char lookup[16] = {
 0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
-0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf };
+0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf};
+*/
+
+static uint8_t lookup[3][8] = { {0x0, 0x4, 0x2, 0x6, 0x1, 0x5, 0x3, 0x7}, {0x0, 0x2, 0x4, 0x6, 0x1, 0x3, 0x5, 0x7}, {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7} };
 
 void read_array (const char* file_name)
 {
@@ -55,11 +59,10 @@ void print_arrays (void)
   }
 }
 
-uint8_t reverse(uint8_t n) {
-   /* lookup[n>>4] takes upper part and looks up its reversed version
-    * lookup[n&0xF] << 4 takes lower nibble and looks up its reversed version
-    */
-   return (lookup[n&0xF] << 4) | lookup[n>>4];
+uint8_t stage_reversal(uint8_t index, int stage)
+{
+
+  return 0;
 }
 
 void twiddle_factor(int r)
@@ -67,14 +70,39 @@ void twiddle_factor(int r)
 
 }
 
-void butterfly_2_dft(int n1, int n2, int stage)
+void butterfly(int n1, int n2, int stage)
 {
-
+  printf("Stage: %d, x[%d] and x[%d]\n", stage, n1, n2 );
 }
 
 void fft(void)
 {
+  // access two array entries in bit reverse order and compute butterfly
 
+  // first do butterfly(n,n+N/2)
+  int divide = N;
+  int max_stage = 0;
+  while ( (divide/=2) != 0 )
+  {
+    max_stage++;
+    printf("%d and %d\n", divide, max_stage);
+  }
+
+  int fft_stage = 0;
+
+  for (; fft_stage < max_stage; fft_stage++ ) // do log2(N) times
+  {
+    for (int n = 0; n < N; n+=2) //
+    {
+      butterfly( lookup[fft_stage][n], lookup[fft_stage][n+1], fft_stage );
+    }
+
+  }
+    //last stage : butterfly(n, n + N/N)
+
+
+
+  //
 }
 
 int main (int argc, char *argv[])
@@ -87,6 +115,8 @@ int main (int argc, char *argv[])
 
   read_array(argv[1]);
   print_arrays();
+
+  fft();
 
   return 0;
 }
