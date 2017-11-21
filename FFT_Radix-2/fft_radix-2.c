@@ -20,6 +20,7 @@ typedef unsigned char uint8_t;
 double complex input[N];
 double complex output[N];
 
+//bool first_bf = 1;
 /*
 static unsigned char lookup[16] = {
 0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
@@ -45,8 +46,8 @@ void read_array (const char* file_name)
   {
       fscanf(numbers, "(%lf,%lf) ", &real, &img);
       input[i] = real + img * I;
+      output[i] = real + img * I;
   }
-
   fclose(numbers);
 }
 
@@ -59,27 +60,26 @@ void print_arrays (void)
   }
 }
 
-uint8_t stage_reversal(uint8_t index, int stage)
+double complex get_twiddle(int r)
 {
-
-  return 0;
+  double cos_arg = ((2*M_PI) / N)*r;
+  double sin_arg = ((-1)*(2*M_PI) / N)*r;
+  double complex twiddle = cos( cos_arg ) + sin( sin_arg )*I;
+  return twiddle;
 }
 
-void twiddle_factor(int r)
+void butterfly(int n1, int n2, int r)
 {
-
-}
-
-void butterfly(int n1, int n2, int stage)
-{
-  printf("Stage: %d, x[%d] and x[%d]\n", stage, n1, n2 );
+  double complex twiddle = get_twiddle(r);
+  printf( "Twiddle: %.3f + %.3fi\n", creal(twiddle), cimag(twiddle) );
+  printf("r: %d\n x[%d] and x[%d]\n", r, n1, n2 );
+  output[n1] = (output[n1] + twiddle*output[n2]);
+  output[n2] = (output[n1] - twiddle*output[n2]);
+  //print_arrays();
 }
 
 void fft(void)
 {
-  // access two array entries in bit reverse order and compute butterfly
-
-  // first do butterfly(n,n+N/2)
   int divide = N;
   int max_stage = 0;
   while ( (divide/=2) != 0 )
@@ -89,20 +89,27 @@ void fft(void)
   }
 
   int fft_stage = 0;
+  int twiddle_exp = 0; // exponent of twiddle factor
+  int twiddle, twiddle_max;
 
-  for (; fft_stage < max_stage; fft_stage++ ) // do log2(N) times
+  for (; fft_stage < max_stage; fft_stage++ ) // log2(N) times
   {
-    for (int n = 0; n < N; n+=2) //
+    twiddle_max = fft_stage;
+    twiddle = 0;
+    for (int n = 0; n < N; n+=2) // N/2 times
     {
-      butterfly( lookup[fft_stage][n], lookup[fft_stage][n+1], fft_stage );
+      printf("\nStage: %d\n", fft_stage );
+      butterfly( lookup[fft_stage][n], lookup[fft_stage][n+1], twiddle );
+      if(fft_stage != 0)
+      {
+        twiddle = (twiddle + (max_stage - fft_stage));
+        if (twiddle > max_stage)
+        {
+          twiddle = 0;
+        }
+      }
     }
-
   }
-    //last stage : butterfly(n, n + N/N)
-
-
-
-  //
 }
 
 int main (int argc, char *argv[])
@@ -114,9 +121,10 @@ int main (int argc, char *argv[])
   }
 
   read_array(argv[1]);
-  print_arrays();
 
   fft();
+
+  print_arrays();
 
   return 0;
 }
