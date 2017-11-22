@@ -29,7 +29,7 @@ static unsigned char lookup[16] = {
 
 static uint8_t lookup[3][8] = { {0x0, 0x4, 0x2, 0x6, 0x1, 0x5, 0x3, 0x7}, {0x0, 0x2, 0x4, 0x6, 0x1, 0x3, 0x5, 0x7}, {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7} };
 
-static uint8_t lookup2[2][4] = { {0x0, 0x2, 0x1, 0x3}, {0x0, 0x1, 0x2, 0x3} };
+//static uint8_t lookup2[2][4] = { {0x0, 0x2, 0x1, 0x3}, {0x0, 0x1, 0x2, 0x3} };
 
 void read_array (const char* file_name)
 {
@@ -48,9 +48,16 @@ void read_array (const char* file_name)
   {
       fscanf(numbers, "(%lf,%lf) ", &real, &img);
       input[i] = real + img * I;
-      output[i] = real + img * I;
   }
   fclose(numbers);
+}
+
+void bit_reverse_array()
+{
+  for (int n = 0; n < N; n++)
+  {
+    output[ lookup[0][n] ] = input[ n ];
+  }
 }
 
 void print_arrays (void)
@@ -65,6 +72,44 @@ void print_arrays (void)
 
 void fft(void)
 {
+  bit_reverse_array();
+
+  int divide = N;
+  int log_n = 0;
+  while ( (divide/=2) != 0 )
+  {
+    log_n++;
+    printf("%d and %d\n", divide, log_n);
+  }
+
+  double complex twiddle_base, twiddle_factor;
+  double complex top, bottom;
+  int m;
+  int stage;
+
+  for ( stage = 1; stage <= log_n; stage++ ) // log2(N) times
+  {
+    m = pow( 2, stage );
+    double cos_arg = (2*M_PI)/m ;
+    double sin_arg = (-1)*(2*M_PI)/m;
+    twiddle_base = cos( cos_arg ) + sin( sin_arg ) * I;
+
+    for ( int k = 0; k < N; k += m )
+    {
+      twiddle_factor = 1;
+
+      for ( int j = 0; j < (m/2); j++ )
+      {
+        top = output[ k + j ];
+        bottom = twiddle_factor * output[ k + j + m/2 ];
+
+        output[ k + j ] = (top + bottom);
+        output[ k + j + m/2 ] = (top - bottom);
+
+        twiddle_factor *= twiddle_base;
+      }
+    }
+  }
 
 }
 
