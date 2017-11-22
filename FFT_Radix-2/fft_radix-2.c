@@ -9,7 +9,7 @@
  * (0,0) (0.707,0) (1,0) (0.707,0) (0,0) (-0.707,0) (-1,0) (-0.707,0)
  * which is a discrete time sinus function between 0 and 2pi.
  */
-#define N 8
+#define N 4
 
 #ifndef M_PI
 #define M_PI 3.1416
@@ -28,6 +28,8 @@ static unsigned char lookup[16] = {
 */
 
 static uint8_t lookup[3][8] = { {0x0, 0x4, 0x2, 0x6, 0x1, 0x5, 0x3, 0x7}, {0x0, 0x2, 0x4, 0x6, 0x1, 0x3, 0x5, 0x7}, {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7} };
+
+static uint8_t lookup2[2][4] = { {0x0, 0x2, 0x1, 0x3}, {0x0, 0x1, 0x2, 0x3} };
 
 void read_array (const char* file_name)
 {
@@ -53,6 +55,7 @@ void read_array (const char* file_name)
 
 void print_arrays (void)
 {
+  printf("\n");
 	for(int n = 0; n < N; n++ )
   {
     printf( "x[%d] = %.3f + %.3fi\t\t", n, creal(input[n]), cimag(input[n]) );
@@ -62,9 +65,9 @@ void print_arrays (void)
 
 double complex get_twiddle(int r)
 {
-  double cos_arg = ((2*M_PI) / N)*r;
-  double sin_arg = ((-1)*(2*M_PI) / N)*r;
-  double complex twiddle = cos( cos_arg ) + sin( sin_arg )*I;
+  double cos_arg = r*((2*M_PI) / N);
+  double sin_arg = r*((-1)*(2*M_PI) / N);
+  double complex twiddle = cos( cos_arg ) + sin( sin_arg ) * I;
   return twiddle;
 }
 
@@ -75,6 +78,7 @@ void butterfly(int n1, int n2, int r)
   printf("r: %d\n x[%d] and x[%d]\n", r, n1, n2 );
   output[n1] = (output[n1] + twiddle*output[n2]);
   output[n2] = (output[n1] - twiddle*output[n2]);
+  //printf( "\nx[%d] %.3f + %.3fi\t\t",n1, creal(output[n1]), cimag(output[n1]) );
   //print_arrays();
 }
 
@@ -89,7 +93,6 @@ void fft(void)
   }
 
   int fft_stage = 0;
-  int twiddle_exp = 0; // exponent of twiddle factor
   int twiddle, twiddle_max;
 
   for (; fft_stage < max_stage; fft_stage++ ) // log2(N) times
@@ -99,7 +102,7 @@ void fft(void)
     for (int n = 0; n < N; n+=2) // N/2 times
     {
       printf("\nStage: %d\n", fft_stage );
-      butterfly( lookup[fft_stage][n], lookup[fft_stage][n+1], twiddle );
+      butterfly( lookup2[fft_stage][n], lookup2[fft_stage][n+1], twiddle );
       if(fft_stage != 0)
       {
         twiddle = (twiddle + (max_stage - fft_stage));
