@@ -72,6 +72,8 @@ void print_arrays (void)
 
 void fft(void)
 {
+  /* TODO: exploit twiddle factor symmetries */
+  /* Maybe: 1) add cosine and sine lookup table, 2) calculate pow(x,y) more efficiently, 3) use less (complex) variables */
   bit_reverse_array();
 
   int divide = N;
@@ -110,7 +112,6 @@ void fft(void)
       }
     }
   }
-
 }
 
 int main (int argc, char *argv[])
