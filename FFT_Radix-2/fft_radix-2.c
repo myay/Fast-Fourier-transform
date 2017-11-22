@@ -9,7 +9,7 @@
  * (0,0) (0.707,0) (1,0) (0.707,0) (0,0) (-0.707,0) (-1,0) (-0.707,0)
  * which is a discrete time sinus function between 0 and 2pi.
  */
-#define N 4
+#define N 8
 
 #ifndef M_PI
 #define M_PI 3.1416
@@ -78,6 +78,8 @@ void butterfly(int n1, int n2, int r)
   printf("r: %d\n x[%d] and x[%d]\n", r, n1, n2 );
   output[n1] = (output[n1] + twiddle*output[n2]);
   output[n2] = (output[n1] - twiddle*output[n2]);
+
+  print_arrays();
   //printf( "\nx[%d] %.3f + %.3fi\t\t",n1, creal(output[n1]), cimag(output[n1]) );
   //print_arrays();
 }
@@ -93,20 +95,23 @@ void fft(void)
   }
 
   int fft_stage = 0;
-  int twiddle, twiddle_max;
+  int twiddle;
 
   for (; fft_stage < max_stage; fft_stage++ ) // log2(N) times
   {
-    twiddle_max = fft_stage;
     twiddle = 0;
     for (int n = 0; n < N; n+=2) // N/2 times
     {
-      printf("\nStage: %d\n", fft_stage );
-      butterfly( lookup2[fft_stage][n], lookup2[fft_stage][n+1], twiddle );
-      if(fft_stage != 0)
+      printf("\nStage: %d, n: %d\n", fft_stage, n );
+      butterfly( lookup[fft_stage][n], lookup[fft_stage][n+1], twiddle );
+      if(fft_stage == (max_stage-1))
       {
-        twiddle = (twiddle + (max_stage - fft_stage));
-        if (twiddle > max_stage)
+        twiddle = 0;
+      }
+      else
+      {
+        twiddle = twiddle + (fft_stage + 1);
+        if(twiddle > (max_stage - fft_stage))
         {
           twiddle = 0;
         }
