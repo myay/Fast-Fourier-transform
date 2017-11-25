@@ -9,8 +9,8 @@
  * For example with X = 4 and Y = 4, the input in form of (real,imaginary) can be specified as
  * (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1).
  */
-#define X 2 // number of rows
-#define Y 2 // and collumns
+#define X 4 // number of rows
+#define Y 4 // and collumns
 
 #ifndef M_PI
 #define M_PI 3.1416
@@ -18,13 +18,21 @@
 
 typedef unsigned char uint8_t;
 
+/* Lookup table to reverse incides from http://graphics.stanford.edu/~seander/bithacks.html#BitReverseObvious */
+
+/*
+static const unsigned char BitReverseTable[256] =
+{
+  #   define R2(n)     n,     n + 2*64,     n + 1*64,     n + 3*64
+  #   define R4(n) R2(n), R2(n + 2*16), R2(n + 1*16), R2(n + 3*16)
+  #   define R6(n) R4(n), R4(n + 2*4 ), R4(n + 1*4 ), R4(n + 3*4 )
+    R6(0), R6(2), R6(1), R6(3)
+};
+*/
+static const unsigned char BitReverseTable[4] = { 0x0, 0x2, 0x1, 0x3 };
+
 double complex input[X][Y];
-double complex output[X][Y];
-
-
-static uint8_t lookup[8] = {0x0, 0x4, 0x2, 0x6, 0x1, 0x5, 0x3, 0x7};
-
-//static uint8_t lookup2[2][4] = { {0x0, 0x2, 0x1, 0x3}, {0x0, 0x1, 0x2, 0x3} };
+double complex z_temp; // for swapping complex numbers
 
 void read_input (const char* file_name)
 {
@@ -50,20 +58,9 @@ void read_input (const char* file_name)
   fclose(numbers);
 }
 
-
-void bit_reverse_row(int row)
-{
-
-}
-
-void bit_reverse_collumn(int collumn)
-{
-
-}
-
-
 void print_array (double complex toprint[][Y])
 {
+  printf("\n");
   for (int x = 0; x < X; x++)
   {
     for (int y = 0; y < Y; y++)
@@ -73,6 +70,35 @@ void print_array (double complex toprint[][Y])
     printf("\n");
   }
   printf("\n");
+}
+
+void complex_swap( uint8_t x, uint8_t i, uint8_t j )
+{
+  z_temp = input[x][i];
+  input[x][i] = input[x][j];
+  input[x][j] = z_temp;
+}
+
+void bit_reverse_rows(void)
+{
+  //swap in place, for every row
+  uint8_t x, i, j;
+  for ( x = 0; x < X; x++ )
+  {
+    for ( i = 0; i < Y; i++ )
+    {
+      j = BitReverseTable[i];
+      if (i < j)
+      {
+        complex_swap(x, i, j);
+      }
+    }
+  }
+}
+
+void fft_2d()
+{
+
 }
 
 int main (int argc, char *argv[])
@@ -85,6 +111,16 @@ int main (int argc, char *argv[])
 
   read_input(argv[1]);
 
+  printf("\nInput:\n");
+  print_array(input);
+
+  bit_reverse_rows();
+
+  printf("\nInput bit-reversed:\n");
+  print_array(input);
+
+  fft_2d();
+  printf("\nInput transformed:\n");
   print_array(input);
 
   return 0;
