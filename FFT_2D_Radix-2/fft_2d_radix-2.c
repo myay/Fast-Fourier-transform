@@ -217,7 +217,6 @@ void fft_2d(bool inverse)
   {
     log_dim++;
   }
-  printf("Log2(X) = %d\n", log_dim);
 
   fft_rows(log_dim, inverse);
 
@@ -229,7 +228,6 @@ void fft_2d(bool inverse)
   {
     log_dim++;
   }
-  printf("Log2(Y) = %d\n", log_dim);
 
   fft_collumns(log_dim, inverse);
 
