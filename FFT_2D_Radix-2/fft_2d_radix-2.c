@@ -3,7 +3,7 @@
 #include <complex.h>
 #include <math.h>
 #include <stdbool.h>
-#include <float.h>
+#include <sys/time.h>
 
 /* Choose X*Y  complex input values (type double) in input.txt.
  * For example with X = 4 and Y = 4, the input in form of (real,imaginary) can be specified as
@@ -119,7 +119,7 @@ void bit_reverse_collumns(void)
   }
 }
 
-void fft_rows(int log_x)
+void fft_rows(int log_x, bool inverse)
 {
   double complex twiddle_base, twiddle_factor;
   double complex top, bottom;
@@ -134,6 +134,10 @@ void fft_rows(int log_x)
       m = pow( 2, stage );
       double cos_arg = (2*M_PI)/m ;
       double sin_arg = (-1)*cos_arg;
+      if(inverse)
+      {
+        sin_arg *= (-1);
+      }
       twiddle_base = cos( cos_arg ) + sin( sin_arg ) * I;
 
       for ( int k = 0; k < Y; k += m )
@@ -155,7 +159,7 @@ void fft_rows(int log_x)
   }
 }
 
-void fft_collumns(int log_y)
+void fft_collumns(int log_y, bool inverse)
 {
   double complex twiddle_base, twiddle_factor;
   double complex top, bottom;
@@ -170,8 +174,11 @@ void fft_collumns(int log_y)
       m = pow( 2, stage );
       double cos_arg = (2*M_PI)/m ;
       double sin_arg = (-1)*cos_arg;
+      if(inverse)
+      {
+        sin_arg *= (-1);
+      }
       twiddle_base = cos( cos_arg ) + sin( sin_arg ) * I;
-
       for ( int k = 0; k < X; k += m )
       {
         twiddle_factor = 1;
@@ -185,13 +192,19 @@ void fft_collumns(int log_y)
           input[ k + j + m/2 ][y] = (top - bottom);
 
           twiddle_factor *= twiddle_base;
+
+          if(inverse && (stage == log_y))
+          {
+            input[k + j][y] /= (X*Y);
+            input[k + j + m/2][y] /= (X*Y);
+          }
         }
       }
     }
   }
 }
 
-void fft_2d()
+void fft_2d(bool inverse)
 {
   bit_reverse_rows();
 
@@ -206,7 +219,7 @@ void fft_2d()
   }
   printf("Log2(X) = %d\n", log_dim);
 
-  fft_rows(log_dim);
+  fft_rows(log_dim, inverse);
 
   bit_reverse_collumns();
 
@@ -218,7 +231,7 @@ void fft_2d()
   }
   printf("Log2(Y) = %d\n", log_dim);
 
-  fft_collumns(log_dim);
+  fft_collumns(log_dim, inverse);
 
 }
 
@@ -235,8 +248,14 @@ int main (int argc, char *argv[])
   printf("\nInput:\n");
   print_array(input);
 
-  fft_2d();
+  /* forward transform */
+  fft_2d(0);
   printf("\nInput transformed:\n");
+  print_array(input);
+
+  /* inverse transform */
+  fft_2d(1);
+  printf("\nInverse:\n");
   print_array(input);
 
   return 0;
