@@ -1,0 +1,12 @@
+(0,0) (1,0) (2,0) (3,0) (4,0) (5,0) (6,0) (7,0) (8,0) (9,0) (10,0) (11,0) (12,0) (13,0) (14,0) (15,0)
+
+***
+The program only reads the input from the first row of this file. 
+The result of the example is:
+
+120 + 0j,	-8 + 8j,	-8 + 0j,	-8 - 8j
+-32 + 32j,	0 + 0j,		0 + 0j,		0 + 0j
+-32 + 0j,	0 + 0j,		0 + 0j,		0 + 0j
+-32 - 32j,	0 + 0j,		0 + 0j,		0 + 0j
+
+ 

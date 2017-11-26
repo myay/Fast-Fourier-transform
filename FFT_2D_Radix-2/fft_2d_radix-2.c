@@ -8,6 +8,7 @@
 /* Choose X*Y  complex input values (type double) in input.txt.
  * For example with X = 4 and Y = 4, the input in form of (real,imaginary) can be specified as
  * (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1).
+ * Compile the program with "make all" and then run "./fft_2d_radix-2 input.txt"
  */
 #define X 4 // number of rows
 #define Y 4 // and collumns
@@ -40,7 +41,7 @@ void read_input (const char* file_name)
 
   if (numbers == NULL)
   {
-    printf("Error reading file, try ./dft_2d /path/to/file\n");
+    printf("Error reading file, try ./fft_2d_radix-2 /path/to/inputfile\n");
     exit (0);
   }
 
