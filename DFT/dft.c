@@ -1,3 +1,4 @@
+// Author: Mikail Yayla, TU Dortmund 2017
 #include <stdio.h>
 #include <stdlib.h>
 #include <complex.h>
@@ -40,6 +41,15 @@ void read_input (const char* file_name)
   fclose(numbers);
 }
 
+void print_arrays (double complex *in, double complex *out)
+{
+  for (int i = 0; i < N; i++)
+  {
+    printf( "x[%d] = %.3f + %.3fi\t\t", i, creal(in[i]), cimag(in[i]) );
+    printf( "X[%d] = %.3f + %.3fi\n", i, creal(out[i]), cimag(out[i]) );
+  }
+}
+
 void dft (double complex *in, double complex *out, bool inverse)
 {
   double complex *in_ptr = in;
@@ -47,12 +57,13 @@ void dft (double complex *in, double complex *out, bool inverse)
 
   double sin_arg = 0.0;
   double cos_arg = 0.0;
+
   for (int k = 0; k < N; k++)
   {
     for (int n = 0; n < N; n++)
     {
       sin_arg = ((-1)*(2*M_PI*k*n) / N);
-      cos_arg = ((2*M_PI*k*n) / N);
+      cos_arg = sin_arg;
 
       if (inverse)
       {
@@ -83,26 +94,15 @@ int main (int argc, char *argv[])
 
   read_input(argv[1]);
 
-  //double complex z1 = 1.0 + 1.0 * I;
-
   dft(input, output, 0);
 
-  printf("Input on the left, output DFT on the right:\n\n");
-  for (int i = 0; i < N; i++)
-  {
-    printf( "x[%d] = %.3f + %.3fi\t\t", i, creal(input[i]), cimag(input[i]) );
-    printf( "X[%d] = %.3f + %.3fi\n", i, creal(output[i]), cimag(output[i]) );
-  }
+  printf("\nInput on the left, output DFT on the right:\n\n");
+  print_arrays(input, output);
 
   dft(output, input, 1);
 
   printf("\nInverse DFT:\n\n");
-
-  for (int i = 0; i < N; i++)
-  {
-      printf( "X[%d] = %.3f + %.3fi\t\t", i, creal(output[i]), cimag(output[i]) );
-      printf( "x[%d] = %.3f + %.3fi\n", i, creal(input[i]), cimag(input[i]) );
-  }
+  print_arrays(output, input);
 
   return 0;
 }
