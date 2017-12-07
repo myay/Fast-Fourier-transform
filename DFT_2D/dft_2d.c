@@ -3,14 +3,13 @@
 #include <complex.h>
 #include <math.h>
 #include <stdbool.h>
-#include <float.h>
 
 /* Choose X*Y  complex input values (type double) in input.txt.
  * For example with X = 4 and Y = 4, the input in form of (real,imaginary) can be specified as
  * (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1) (1,0) (1,0) (1,0) (1,0) (1,-1).
  */
-#define X 2 // number of rows
-#define Y 2 // and collumns
+#define X 4 // number of rows
+#define Y 4 // and collumns
 
 #ifndef M_PI
 #define M_PI 3.1416
@@ -40,19 +39,24 @@ void read_input (const char* file_name)
       input[x][y] = real + img * I;
     }
   }
+
   fclose(numbers);
 }
 
 void print_array (double complex toprint[][Y])
 {
+  printf("\n");
+
   for (int x = 0; x < X; x++)
   {
     for (int y = 0; y < Y; y++)
     {
       printf( " %.2f+%.2fi\t", creal( toprint[x][y] ), cimag( toprint[x][y] ) );
     }
+
     printf("\n");
   }
+
   printf("\n");
 }
 
@@ -71,24 +75,30 @@ void dft_2d (double complex in[][Y], double complex out[][Y], bool inverse)
       {
         for (y = 0; y < Y; y++)
         {
-          cos_arg = ((2*M_PI*v*y) / Y);
           sin_arg = ((-1)*(2*M_PI*v*y) / Y);
+	        cos_arg = sin_arg;
+
           if(inverse)
           {
             sin_arg *= (-1);
           }
+
           inner_sum += (in[x][y]) * (cos( cos_arg ) + sin( sin_arg ) * I);
         }
-        cos_arg = ((2*M_PI*u*x) / X);
+
         sin_arg = ((-1)*(2*M_PI*u*x) / X);
+	      cos_arg = sin_arg;
+
         if (inverse)
         {
           sin_arg *= (-1);
         }
+
         outer_exp = (cos( cos_arg ) + sin( sin_arg ) * I);
         out[u][v] += (inner_sum * outer_exp);
         inner_sum = 0;
       }
+
       if (inverse)
       {
         out[u][v] /= ((X)*(Y));
@@ -111,9 +121,7 @@ int main (int argc, char *argv[])
   print_array(input);
   print_array(output);
 
-  printf("%.2f\n\n", DBL_MAX);
-
-  printf("Inverse:\n\n");
+  printf("Inverse:\n");
   dft_2d(output, input, 1);
   print_array(output);
   print_array(input);
